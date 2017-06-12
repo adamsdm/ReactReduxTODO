@@ -1,0 +1,20 @@
+body{
+    background: #353535;
+    color:white;
+}
+button, input{
+    color: black;
+}
+
+h3{ margin-top: 4px; }
+
+.todoPostIt{
+    cursor: pointer;
+    float: left;
+    color: black;
+    background: #f9f9a2;
+    width: 200px;
+    height: 200px;
+    padding: 10px;
+    margin: 10px;
+}
