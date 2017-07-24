@@ -70,7 +70,6 @@ app.use(webpackHotMiddleware(compiler));
 
 // ROUTING //
 app.use(express.static(__dirname + '/dist')); 
-app.use(express.static(__dirname + '/public')); 
 
 require('./routes')(app, passport);
 

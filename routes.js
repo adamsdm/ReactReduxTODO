@@ -1,9 +1,43 @@
 
+const Todo = require("./src/models/todo");
+
 module.exports = function(app, passport){
 
+    app.get('/auth/facebook', function(req, res){
+        console.log("Facebook");
+        passport.authenticate('facebook', { scope : 'email' })
+    });
+
+    // handle the callback after facebook has authenticated the user
+    app.get('/auth/facebook/callback', function(){
+        passport.authenticate('facebook', {
+            successRedirect : '/',
+            failureRedirect : '/sign-in'
+        })}
+    );
+    
+    app.get('/get/todos', function(req, res) {
+
+        console.log(req.query);
+
+      Todo.find({}, function(err, users) {
+        var userMap = {};
+
+        users.forEach(function(user) {
+          userMap[user._id] = user;
+        });
+
+        res.send(userMap);  
+      });
+    });
+
+    // route for logging out
+    app.get('/logout', function(req, res) {
+        req.logout();
+        res.redirect('/');
+    });
 	app.get('*', function (req, res) {
-	  console.log(req.session);
-	  res.sendFile(__dirname + '/index.html');
+	  res.sendFile(__dirname + '/views/index.html');
 	})
 
 	app.post('/addtodo', function (req, res) {
@@ -19,21 +53,6 @@ module.exports = function(app, passport){
 	  	res.send('POST request to homepage');
 	});
 
-	app.get('/auth/facebook', function(req, res){
-		passport.authenticate('facebook', { scope : 'email' })
-	});
-
-    // handle the callback after facebook has authenticated the user
-    app.get('/auth/facebook/callback',
-        passport.authenticate('facebook', {
-            successRedirect : '/',
-            failureRedirect : '/sign-in'
-        }));
-
-    // route for logging out
-    app.get('/logout', function(req, res) {
-        req.logout();
-        res.redirect('/');
-    });
+	
 
 }
