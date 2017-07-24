@@ -1,7 +1,12 @@
 
 // DEPENDENCIES // 
-var express = require('express')
-var bodyParser = require('body-parser')
+var express = require('express');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+var passport = require('passport');
+var FacebookStrategy = require('passport-facebook').Strategy;
+var flash = require('connect-flash');
 var path = require('path');
 var webpack = require('webpack');
 var webpackDevMiddleware = require('webpack-dev-middleware');
@@ -19,6 +24,29 @@ app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
+
+app.use(cookieParser());
+app.use(session({
+  secret: "anystringoftext",
+  saveUninitialized: true,
+  resave: true
+}));
+
+passport.use(new FacebookStrategy({
+    clientID: "1069014643231376",
+    clientSecret: "9444b312cd76258791a90d3be85bed54",
+    callbackURL: "http://localhost:8080/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+    console.log(profile);
+  }
+));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
+
 
 // DATABASE //
 let uri = "mongodb://adam:J3W5G5zKcV94xsuJ@cluster0-shard-00-00-j5zaf.mongodb.net:27017,cluster0-shard-00-01-j5zaf.mongodb.net:27017,cluster0-shard-00-02-j5zaf.mongodb.net:27017/TodoAPP?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin"
@@ -44,22 +72,7 @@ app.use(webpackHotMiddleware(compiler));
 app.use(express.static(__dirname + '/dist')); 
 app.use(express.static(__dirname + '/public')); 
 
-app.get('/*', function (req, res) {
-  res.sendFile(__dirname + '/dist/index.html');
-})
-
-app.post('/addtodo', function (req, res) {
-    console.log(req.body);
-    
-    var todo = new Todo({
-    	title: req.body.title,
-    	description: req.body.description,
-    });
-
-    todo.save();
-
-  	res.send('POST request to homepage');
-});
+require('./routes')(app, passport);
 
 
 // START SERVER //
