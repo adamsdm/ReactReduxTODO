@@ -11,14 +11,19 @@ var colors = require('colors');
 var config = require('./webpack.config.js');
 var app = express();
 
+
+const Todo = require("./src/models/todo");
+
+
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
 
 // DATABASE //
+let uri = "mongodb://adam:J3W5G5zKcV94xsuJ@cluster0-shard-00-00-j5zaf.mongodb.net:27017,cluster0-shard-00-01-j5zaf.mongodb.net:27017,cluster0-shard-00-02-j5zaf.mongodb.net:27017/TodoAPP?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin"
 console.log(colors.yellow("\nConnecting to database..."))
-mongoose.connect('mongodb://127.0.0.1/TodoDB');
+mongoose.connect(uri);
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, colors.red('connection error:') ) );
@@ -39,18 +44,26 @@ app.use(webpackHotMiddleware(compiler));
 app.use(express.static(__dirname + '/dist')); 
 app.use(express.static(__dirname + '/public')); 
 
-app.get('/', function (req, res) {
+app.get('/*', function (req, res) {
   res.sendFile(__dirname + '/dist/index.html');
 })
 
-app.post('/', function (req, res) {
+app.post('/addtodo', function (req, res) {
     console.log(req.body);
-  res.send('POST request to homepage');
+    
+    var todo = new Todo({
+    	title: req.body.title,
+    	description: req.body.description,
+    });
+
+    todo.save();
+
+  	res.send('POST request to homepage');
 });
 
 
 // START SERVER //
-const PORT = 3000;
+const PORT = 8080;
 
 app.listen(PORT, function () {
   console.log( colors.green('Listening on port '+PORT) );

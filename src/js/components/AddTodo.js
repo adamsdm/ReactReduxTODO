@@ -21,13 +21,13 @@ export default class AddTodo extends React.Component {
 
     const todo = {
       title: todoTitle,
-      text: todoDesc,
+      description: todoDesc,
       resolved: false
     }
 
     $.ajax({
       type: 'POST',
-      url: '/',
+      url: '/addtodo',
       data: todo
     })
 
